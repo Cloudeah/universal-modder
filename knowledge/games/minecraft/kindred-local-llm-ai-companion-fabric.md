@@ -19,7 +19,7 @@ tags: [fabric, ai-companion, npc, local-llm, ollama, autonomy, bounded-inference
 
 # Kindred: Local LLM AI companion with Ollama, bounded inference, autonomy, and memory
 
-> A Fabric 1.20.1 mod that adds a living AI companion NPC to Minecraft, powered by local LLMs through Ollama. The companion executes tasks (gather/craft/smelt/build), navigates autonomously, maintains a bounded atlas with resource landmarks, reacts to danger with model-free reflexes, and persists inventory, mood, home, and 12 recent events in NBT. Verified through 17 Minecraft GameTests and 19 unit tests covering recipes, movement, sensors, map persistence, and real Ollama transport with mock HTTP.
+> A Fabric 1.20.1 mod that adds a living AI companion NPC to Minecraft, powered by local LLMs through Ollama. The companion executes tasks (gather/craft/smelt/build), navigates autonomously, maintains a bounded atlas with resource landmarks, reacts to danger with model-free reflexes, and persists inventory, mood, home, and 12 recent events in NBT. Verified through 17 Minecraft GameTests and 19 unit tests covering recipes, movement, sensors, map persistence, and the Ollama HTTP client against a local mock server.
 
 ## Setup
 - **Minecraft:** Java 1.20.1
@@ -53,7 +53,7 @@ tags: [fabric, ai-companion, npc, local-llm, ollama, autonomy, bounded-inference
 - Accepts **loopback HTTP only** (127.0.0.1 or ::1), disallows redirects, bounds response bytes, applies timeouts, serializes inference across all companions.
 - Ollama requests disable thinking output, use JSON schema for action turns, bound context/output tokens.
 - `Brain` builds observations on the server thread, runs inference in a daemon executor, dispatches completion back to server thread. Generation IDs and config-revision checks discard stale replies.
-- Three model roles: primary (actions + chat), optional `plannerModel` (autonomy planning, can share primary), legacy optional `socialModel` (proactive speech).
+- Model roles: only the primary model (actions + chat) is wired in alpha.4; `plannerModel` and the legacy `socialModel` are config fields that aren't used yet (Gotcha 7).
 - Failed services use exponential cooldown; deterministic actions (reflexes, Scout search) continue working offline.
 
 **Sensors (`Senses`)**
@@ -89,7 +89,7 @@ tags: [fabric, ai-companion, npc, local-llm, ollama, autonomy, bounded-inference
 2. Build with Gradle:
    ```bash
    cd kindred-source/kindred
-   ./gradlew.bat build
+   ./gradlew build
    ```
    - Requires JDK 17, uses Gradle 8.7 wrapper.
    - Output: `build/libs/kindred-0.1.0-alpha.4.jar` (139,877 bytes).
@@ -122,7 +122,7 @@ tags: [fabric, ai-companion, npc, local-llm, ollama, autonomy, bounded-inference
 
 **Manual verification**:
 - Alpha.2 user logs decoded (CP1251): model responses and duplicate-station symptoms present, but raw intents/action results missing (exact plan at moment not recoverable).
-- Alpha.4: shipped JAR tested in user's Dreamcraft instance (Forge 47.4.10 analog: CurseForge Fabric with ~100 other mods). Two short play sessions (rounds to alpha levels, no crashes reported from Kindred itself).
+- Alpha.4: shipped JAR tested in user's Dreamcraft instance (a CurseForge Fabric pack with ~100 other mods). Two short play sessions; no crashes reported from Kindred itself.
 
 **Oracle**: GameTest assertions for entity state, NBT round-trip, recipe matching, sensor output; mock HTTP for transport; real `latest.log` inspection for runtime behavior. Full model inference quality (actual Ollama weights, real-world task success rate, FPS/VRAM under load) verified only by end user in live play.
 
